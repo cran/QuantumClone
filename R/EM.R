@@ -382,8 +382,15 @@ parallelEM<-function(Schrod,nclust,epsilon,contamination,prior_center=NULL,prior
 #' @keywords EM Hard clustering
 hard.clustering<-function(EM_out){
   EM_out$clust<-apply(X = EM_out$fik,MARGIN = 1,FUN = function(z) {
-    if(sum(z==max(z))>1){
-      return(NA)
+    if(sum(z==max(z))>1){ ### Look for the multiple clones, and attribute with probability proportional to the weight
+      if(max(z)>0){
+		pos<-which(z==max(z))
+		prob<-EM_out$weights[pos]/(sum(EM_out$weights[pos]))
+		return(sample(x = pos, size = 1, prob = prob))
+	  }
+	  else{
+		return(sample(1:length(z),size = z))
+	  }
     }
     else{
       return(which(z==max(z)))
@@ -399,17 +406,25 @@ hard.clustering<-function(EM_out){
 #' @keywords EM clustering number
 BIC_criterion<-function(EM_out_list){
   Bic<-numeric()
+  if(length(EM_out_list)==0){
+	return(0)
+  }
   Mut_num<-dim(EM_out_list[[1]]$EM.output$fik)[1]
   for(i in 1:length(EM_out_list)){
     Bic[i]<-2*EM_out_list[[i]]$EM.output$val+length(EM_out_list[[i]]$EM.output$centers[[1]])*log(Mut_num)
   }
   W<-which.min(Bic)
-  H<-hard.clustering(EM_out =EM_out_list[[W]]$EM.output)
-  if(length(na.omit(unique(H)))<max(na.omit(H))){
-  
-    W<-BIC_criterion(EM_out_list[-W])
+  L<-0
+  ORD<-order(Bic)
+  while(L<length(ORD)){
+	L<-L+1
+	H<-hard.clustering(EM_out =EM_out_list[[ORD[L]]]$EM.output)
+    if(length(na.omit(unique(H))) == max(na.omit(H))){
+		return(ORD[L])
+	}
   }
-  return(W)
+  return(ORD[1])
+  
 }
 #' Expectation Maximization
 #'
