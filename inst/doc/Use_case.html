@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="author" content="Paul Deveau" />
+
+<meta name="date" content="2015-11-03" />
+
+<title>Use case</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+
+
+<link rel="stylesheet" href="C:\Users\User\Documents\R\win-library\3.2\rmarkdown\rmarkdown\templates\html_vignette\resources\vignette.css" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+<div id="header">
+<h1 class="title">Use case</h1>
+<h4 class="author"><em>Paul Deveau</em></h4>
+<h4 class="date"><em>2015-11-03</em></h4>
+</div>
+
+
+<div id="quantumclone-and-quantumcat" class="section level1">
+<h1>QuantumClone and QuantumCat</h1>
+<p>R package available on <a href="https://cran.r-project.org/package=QuantumClone">CRAN</a></p>
+<p>or on <a href="https://github.com/DeveauP/QuantumClone">github</a></p>
+<p>Maintainer: Paul Deveau (paul.deveau at curie.fr)</p>
+<div id="clonal-reconstruction-from-high-throughput-sequencing-data" class="section level2">
+<h2>Clonal Reconstruction from High-Throughput Sequencing data</h2>
+<p>QuantumClone is an algorithm that is designed to reconstruct clonal populations (i.e. group of cells with the same genetic background) based on high throughput sequencing data (either whole exome or whole genome) It takes into account information from variants (reads supporting the alternative allele and depth at the position), as well as information from copy number : number of alleles at locus (a normal diploid region would be written as “AB”) Additional information, such as the contamination, is also used.</p>
+<div id="usage" class="section level3">
+<h3><a name="UA"></a> Usage</h3>
+<p>QuantumClone is looking for clones in your samples assuming that there is an evolutionary logic between samples, so you should use data from the same patient for one analysis (either different timepoints, or spatially separated samples, or biological replicates).</p>
+<div id="input-data" class="section level4">
+<h4>Input data</h4>
+<p>QuantumClone requires few informations in the input file: <a name="SNVD"></a></p>
+<ul>
+<li><p>Line 1 should be the column titles (Sample | Chr | Start | Alt | Depth ). An additional argument is required if you do not have a <a href="http://bioinfo-out.curie.fr/projects/freec/">FREEC</a> profile associated to your files: the Genotype.</p></li>
+<li><p>The <em>first</em> column needs to be the name of your sample</p></li>
+<li><p>The Chr column contains the chromosome of variant (e.g. “chr2”)</p></li>
+<li><p>Start is the position of the variant</p></li>
+<li><p>Alt is the number of reads supporting the variant</p></li>
+<li><p>Depth is the depth of coverage at the position of the variant (number of reads mapped at this position)</p></li>
+</ul>
+<p>We show below an example created by the QuantumCat function, and that can be accessed from the data:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">    <span class="co"># Example was generated calling:</span>
+   Input_Example&lt;-<span class="kw">QuantumCat</span>(<span class="dt">number_of_clones =</span> <span class="dv">4</span>,
+                             <span class="dt">number_of_mutations =</span> <span class="dv">100</span>,
+                             <span class="dt">ploidy =</span> <span class="st">&quot;AB&quot;</span>,<span class="dt">depth =</span> <span class="dv">150</span>,
+                             <span class="dt">number_of_samples =</span> <span class="dv">2</span>,
+                             <span class="dt">contamination =</span> <span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">0</span>))</code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">SampleName</th>
+<th align="right">Chr</th>
+<th align="right">Start</th>
+<th align="right">Depth</th>
+<th align="right">Alt</th>
+<th align="left">Genotype</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Timepoint_1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">149</td>
+<td align="right">67</td>
+<td align="left">AB</td>
+</tr>
+<tr class="even">
+<td align="left">Timepoint_1</td>
+<td align="right">4</td>
+<td align="right">2</td>
+<td align="right">162</td>
+<td align="right">2</td>
+<td align="left">AB</td>
+</tr>
+<tr class="odd">
+<td align="left">Timepoint_1</td>
+<td align="right">4</td>
+<td align="right">3</td>
+<td align="right">132</td>
+<td align="right">5</td>
+<td align="left">AB</td>
+</tr>
+<tr class="even">
+<td align="left">Timepoint_1</td>
+<td align="right">4</td>
+<td align="right">4</td>
+<td align="right">57</td>
+<td align="right">1</td>
+<td align="left">AB</td>
+</tr>
+<tr class="odd">
+<td align="left">Timepoint_1</td>
+<td align="right">4</td>
+<td align="right">5</td>
+<td align="right">93</td>
+<td align="right">0</td>
+<td align="left">AB</td>
+</tr>
+<tr class="even">
+<td align="left">Timepoint_1</td>
+<td align="right">4</td>
+<td align="right">6</td>
+<td align="right">95</td>
+<td align="right">0</td>
+<td align="left">AB</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Any additional column will not be taken into account for the analysis</strong></p>
+<p>While the input file can be as large as you want, the computation time will exponentially grow with the number of variants to be studied. In order to keep computation time reasonable (from a minute to an hour), a reasonable set of mutation is between <strong>100 to 1000 variants</strong>.</p>
+</div>
+<div id="analysis" class="section level4">
+<h4>Analysis</h4>
+<p>The QuantumClone package is divided in two:</p>
+<ul>
+<li><p><a href="#CR">The clonal reconstruction</a>: QuantumClone / One_step_clustering functions</p></li>
+<li><p><a href="#CS">The clonal simulation</a>: QuantumCat (not included in the GUI)</p></li>
+</ul>
+</div>
+<div id="clonal-reconstruction" class="section level4">
+<h4><a name="CR"></a> Clonal reconstruction</h4>
+<p>One_step_clustering() has several parameters required (some have default configuration):</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  <span class="kw">One_step_clustering</span>(SNV_list, <span class="dt">FREEC_list =</span> <span class="ot">NULL</span>, contamination,
+  <span class="dt">nclone_range =</span> <span class="dv">2</span>:<span class="dv">5</span>, <span class="dt">clone_priors =</span> <span class="ot">NULL</span>, <span class="dt">prior_weight =</span> <span class="ot">NULL</span>,
+  <span class="dt">maxit =</span> <span class="dv">1</span> , <span class="dt">preclustering =</span> T, <span class="dt">simulated =</span> F, <span class="dt">epsilon =</span> <span class="dv">5</span> *<span class="st"> </span>(<span class="dv">10</span>^(-<span class="dv">3</span>)),
+  <span class="dt">save_plot =</span> T, <span class="dt">ncores =</span> <span class="dv">1</span>, <span class="dt">plot_3D =</span> F, <span class="dt">plot_3D_before_clustering =</span> F,
+  <span class="dt">restrict.to.AB =</span> F, <span class="dt">output_directory =</span> <span class="ot">NULL</span>)</code></pre></div>
+<ul>
+<li>SNV_list: list of dataframes. See <a href="#SNVD">previous section</a> for description.</li>
+<li>FREEC_list: list of outputs from FREEC (in the same order as the SNV list). See <a href="#FREECD">here</a> for added information.</li>
+<li>contamination: Numeric vector giving the fraction of normal cells in each sample. Is linked to the cellularity by contamination = 1 - Cellularity</li>
+<li>nclone_range: number of clones to look for in the samples</li>
+<li>clone_priors: list of vectors giving the position of the clones in each samples (if know from previous analysis)</li>
+<li>prior_weight : fraction of variants belonging to a clone (if known from previous analysis)</li>
+<li>maxit : number of iterations to run per condition. The output will take the maximal maximum likelihood on all iterations.</li>
+<li>preclustering : should kmeans (fpc package) be used to give priors to the alorithm?</li>
+<li>simulated : is the data generated by QuantumCat? It does not change the parameters, but will attribute shapes to different chromosomes in the plots. (see <a href="#CS">QuantumCat</a> for more information)</li>
+<li>epsilon : stop condition for the EM.</li>
+<li>save_plot : save the 2D plots in a folder with the patient name/output_directory.</li>
+<li>ncores: number of CPUs on which to distribute calculations (used if high number of variants)</li>
+<li>restrict.to.AB : should the clustering be done only on AB regions?</li>
+<li>output_directory : directory in which the plots will be saved (if NULL, will create a directory with the patient name)</li>
+</ul>
+<p>The output should look like this: &gt; QC_output$filtered.data[[1]]</p>
+<table>
+<thead>
+<tr class="header">
+<th align="right">Chr</th>
+<th align="right">Start</th>
+<th align="right">Cellularity</th>
+<th align="left">Genotype</th>
+<th align="right">Alt</th>
+<th align="right">Depth</th>
+<th align="right">NC</th>
+<th align="right">NCh</th>
+<th align="right">alpha</th>
+<th align="right">id</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0.8993289</td>
+<td align="left">AB</td>
+<td align="right">67</td>
+<td align="right">149</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">1</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="right">4</td>
+<td align="right">2</td>
+<td align="right">0.0246914</td>
+<td align="left">AB</td>
+<td align="right">2</td>
+<td align="right">162</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">1</td>
+<td align="right">2</td>
+</tr>
+<tr class="odd">
+<td align="right">4</td>
+<td align="right">3</td>
+<td align="right">0.0757576</td>
+<td align="left">AB</td>
+<td align="right">5</td>
+<td align="right">132</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">1</td>
+<td align="right">3</td>
+</tr>
+<tr class="even">
+<td align="right">4</td>
+<td align="right">4</td>
+<td align="right">0.0350877</td>
+<td align="left">AB</td>
+<td align="right">1</td>
+<td align="right">57</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">1</td>
+<td align="right">4</td>
+</tr>
+<tr class="odd">
+<td align="right">4</td>
+<td align="right">5</td>
+<td align="right">0.0000000</td>
+<td align="left">AB</td>
+<td align="right">0</td>
+<td align="right">93</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">1</td>
+<td align="right">5</td>
+</tr>
+<tr class="even">
+<td align="right">4</td>
+<td align="right">6</td>
+<td align="right">0.0000000</td>
+<td align="left">AB</td>
+<td align="right">0</td>
+<td align="right">95</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">1</td>
+<td align="right">6</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="plots" class="section level4">
+<h4>Plots</h4>
+<p>Output from clustering can be represented thanks to the plot_QC_out(), or plot_with_margins_densities (if 1 or two samples)</p>
+<blockquote>
+<p>plot_QC_out(QC_output)</p>
+</blockquote>
+<p><img src="Use_case_files/figure-html/plot-1.png" alt="" /></p>
+<blockquote>
+<p>plot_with_margins_densities(QC_output)</p>
+</blockquote>
+<p><img src="Use_case_files/figure-html/margin-1.png" alt="" /></p>
+<p>For time series, using evolution_plot() is recommanded. It enables the plot of the cellularity of each clone in a single plot, with the width of a line being proportional to the fraction of mutations in the clone.</p>
+<blockquote>
+<p>evolution_plot(QC_output,Sample_names = c(“Timepoint_1”,“Timepoint_2”))</p>
+</blockquote>
+<p><img src="Use_case_files/figure-html/evol-1.png" alt="" /></p>
+</div>
+<div id="recreate-phylogenetic-tree-when-possible" class="section level4">
+<h4>Recreate phylogenetic tree (when possible)</h4>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">Cellularities&lt;-<span class="kw">cbind</span>(QuantumClone::QC_output$EM.output$centers[[<span class="dv">1</span>]],QuantumClone::QC_output$EM.output$centers[[<span class="dv">2</span>]])
+Tree&lt;-QuantumClone::<span class="kw">Tree_generation</span>(Cellularities)</code></pre></div>
+<p>Output of Tree_generation is a list of dataframes and probabilities, as this:</p>
+<table>
+<tbody>
+<tr class="odd">
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1.0000000</td>
+<td align="right">1.0000000</td>
+</tr>
+<tr class="even">
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0.7148588</td>
+<td align="right">0.2166373</td>
+</tr>
+<tr class="odd">
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.0502218</td>
+<td align="right">0.5129098</td>
+</tr>
+<tr class="even">
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.0208175</td>
+<td align="right">0.0186199</td>
+</tr>
+<tr class="odd">
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0.2851412</td>
+<td align="right">0.7833627</td>
+</tr>
+<tr class="even">
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.2349194</td>
+<td align="right">0.2704529</td>
+</tr>
+<tr class="odd">
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.6940413</td>
+<td align="right">0.1980175</td>
+</tr>
+</tbody>
+</table>
+<p>Each row (i) corresponds to a clone. The last two columns are the cellularity of the clone in the sample. For the other columns (j) there is a 1 if clone j is a progeny of clone (i)</p>
+</div>
+<div id="plot-all-possible-phylogenetic-trees" class="section level4">
+<h4>Plot all possible phylogenetic trees:</h4>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">QuantumClone::<span class="kw">multiplot_trees</span>(Tree,<span class="dt">d =</span> <span class="dv">4</span>)</code></pre></div>
+<p><img src="Use_case_files/figure-html/TreePlot-1.png" alt="" /></p>
+</div>
+<div id="clonal-simulation" class="section level4">
+<h4><a name="CS"></a> Clonal simulation</h4>
+<p>This part is about generating data to test clonal reconstruction algorithms. Its core is the QuantumCat function. It will generate data for a single cancer that can be sequenced multiple times (either spatially separated or different timepoints). It thus assumes that there is an evolutionary history between samples. The “Chr” columns stores the information of the clonal attribution.</p>
+<blockquote>
+<p>QuantumCat(number_of_clones, number_of_mutations, ploidy = 2, depth = 100, number_of_samples = 2, Random_clones = F, contamination = NULL)</p>
+</blockquote>
+<ul>
+<li>number_of_clones : How many clones should exist in total. For example, 5 clones in 2 samples can be distributed in the following way: 1 specific of sample 1, 1 specific of sample 2 and 3 shared between sample 1 and 2.</li>
+<li>number_of_mutations : How many variants should be used for the clustering. Some algorithms reported that an increase in the number of variants decreased the clustering quality, which does not seem to be the case here. It affects the computing time however.</li>
+<li>ploidy : if numeric, it will generate a poisson distribution with mean the ploidy. Accepted inputs can be “disomic”, “AB”, “AAB”, “A”, etc.</li>
+<li>depth : what is the sequencing depth? Depth of a variant will be generated according to a negative binomial distribution, which characteristics have been generated by fitting to our data from whole genome sequencing.</li>
+<li>number_of_samples = How many samples should be generated?</li>
+<li>Random_clones: if the number of clones should be generated randomly (sampled from 2:5)</li>
+<li>contamination: estimation of the contamination by normal cells</li>
+</ul>
+<p>For multiple testings, and calculation of the Normalized Mutual Information (NMI), see Multitest() and statistics_on_Multitest()</p>
+</div>
+</div>
+<div id="acknowledgments" class="section level3">
+<h3>Acknowledgments</h3>
+<p>Many thanks to the contributors of this work: my supervisors, Elodie for the features improvement and Linux debugging, Matahi for the OSX feedback, and more generally to the U830 &amp; U900 people. This work had been funded by the Ministere de l’Enseignement Superieur de la Recherche (AMX grant).</p>
+</div>
+</div>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
