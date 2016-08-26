@@ -8,9 +8,11 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
 <meta name="author" content="Paul Deveau" />
 
-<meta name="date" content="2015-11-03" />
+<meta name="date" content="2016-07-28" />
 
 <title>Use case</title>
 
@@ -54,11 +56,7 @@ code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Ann
 code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
 code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
 </style>
-<style type="text/css">
-  pre:not([class]) {
-    background-color: white;
-  }
-</style>
+
 
 
 <link rel="stylesheet" href="C:\Users\User\Documents\R\win-library\3.2\rmarkdown\rmarkdown\templates\html_vignette\resources\vignette.css" type="text/css" />
@@ -69,11 +67,11 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 
 
-<div id="header">
-<h1 class="title">Use case</h1>
+
+<h1 class="title toc-ignore">Use case</h1>
 <h4 class="author"><em>Paul Deveau</em></h4>
-<h4 class="date"><em>2015-11-03</em></h4>
-</div>
+<h4 class="date"><em>2016-07-28</em></h4>
+
 
 
 <div id="quantumclone-and-quantumcat" class="section level1">
@@ -300,16 +298,16 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <blockquote>
 <p>plot_QC_out(QC_output)</p>
 </blockquote>
-<p><img src="Use_case_files/figure-html/plot-1.png" alt="" /></p>
+<p><img src="Use_case_files/figure-html/plot-1.png" alt="" /><!-- --></p>
 <blockquote>
 <p>plot_with_margins_densities(QC_output)</p>
 </blockquote>
-<p><img src="Use_case_files/figure-html/margin-1.png" alt="" /></p>
+<p><img src="Use_case_files/figure-html/margin-1.png" alt="" /><!-- --></p>
 <p>For time series, using evolution_plot() is recommanded. It enables the plot of the cellularity of each clone in a single plot, with the width of a line being proportional to the fraction of mutations in the clone.</p>
 <blockquote>
 <p>evolution_plot(QC_output,Sample_names = c(“Timepoint_1”,“Timepoint_2”))</p>
 </blockquote>
-<p><img src="Use_case_files/figure-html/evol-1.png" alt="" /></p>
+<p><img src="Use_case_files/figure-html/evol-1.png" alt="" /><!-- --></p>
 </div>
 <div id="recreate-phylogenetic-tree-when-possible" class="section level4">
 <h4>Recreate phylogenetic tree (when possible)</h4>
@@ -402,7 +400,7 @@ Tree&lt;-QuantumClone::<span class="kw">Tree_generation</span>(Cellularities)</c
 <div id="plot-all-possible-phylogenetic-trees" class="section level4">
 <h4>Plot all possible phylogenetic trees:</h4>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">QuantumClone::<span class="kw">multiplot_trees</span>(Tree,<span class="dt">d =</span> <span class="dv">4</span>)</code></pre></div>
-<p><img src="Use_case_files/figure-html/TreePlot-1.png" alt="" /></p>
+<p><img src="Use_case_files/figure-html/TreePlot-1.png" alt="" /><!-- --></p>
 </div>
 <div id="clonal-simulation" class="section level4">
 <h4><a name="CS"></a> Clonal simulation</h4>
