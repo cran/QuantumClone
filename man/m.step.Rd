@@ -4,7 +4,7 @@
 \alias{m.step}
 \title{Maximization step}
 \usage{
-m.step(fik, Schrod, previous.weights, previous.centers, contamination, alpha,
+m.step(fik, Schrod, previous.weights, previous.centers, contamination,
   adj.factor, optim = "default")
 }
 \arguments{
@@ -18,11 +18,9 @@ m.step(fik, Schrod, previous.weights, previous.centers, contamination, alpha,
 
 \item{contamination}{Numeric vector with the fraction of normal cells contaminating the sample}
 
-\item{alpha}{Weight of each possibility / normalization so that the sum of all possibilities weighs equal to 1 mutation}
-
 \item{adj.factor}{Factor to compute the probability: makes transition between the cellularity of the clone and the frequency observed}
 
-\item{optim}{use L-BFS-G optimization from R ("default"), or from optimx ("optimx")}
+\item{optim}{use L-BFS-G optimization from R ("default"), or from optimx ("optimx"), or Differential Evolution ("DEoptim")}
 }
 \description{
 Optimization of clone positions and proportion of mutations in each clone, based on the previously calculated expectation

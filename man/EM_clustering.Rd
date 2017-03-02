@@ -5,9 +5,9 @@
 \title{Expectation Maximization}
 \usage{
 EM_clustering(Schrod, contamination, prior_weight = NULL,
-  clone_priors = NULL, maxit = 8, nclone_range = 2:5, epsilon = 5 *
-  (10^(-3)), ncores = 2, model.selection = "BIC", optim = "default",
-  keep.all.models = FALSE)
+  clone_priors = NULL, Initializations = 1, nclone_range = 2:5,
+  epsilon = 0.01, ncores = 2, model.selection = "BIC",
+  optim = "default", keep.all.models = FALSE, FLASH = FALSE)
 }
 \arguments{
 \item{Schrod}{List of dataframes, output of the Schrodinger function or the EM algorithm}
@@ -18,7 +18,7 @@ EM_clustering(Schrod, contamination, prior_weight = NULL,
 
 \item{clone_priors}{If known a list of priors (cell prevalence) to be used in the clustering}
 
-\item{maxit}{Maximal number of independant initial condition tests to be tried}
+\item{Initializations}{Maximal number of independant initial condition tests to be tried}
 
 \item{nclone_range}{Number of clusters to look for}
 
@@ -29,9 +29,11 @@ EM_clustering(Schrod, contamination, prior_weight = NULL,
 \item{model.selection}{The function to minimize for the model selection: can be "AIC", "BIC", or numeric. In numeric, the function
 uses a variant of the BIC by multiplication of the k*ln(n) factor. If >1, it will select models with lower complexity.}
 
-\item{optim}{use L-BFS-G optimization from R ("default"), or from optimx ("optimx")}
+\item{optim}{use L-BFS-G optimization from R ("default"), or from optimx ("optimx"), or Differential Evolution ("DEoptim")}
 
 \item{keep.all.models}{Should the function output the best model (default; FALSE), or all models tested (if set to true)}
+
+\item{FLASH}{should it use FLASH algorithm to create priors}
 }
 \description{
 Maximization of the likelihood given a mixture of binomial distributions

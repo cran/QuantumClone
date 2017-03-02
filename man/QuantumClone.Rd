@@ -6,8 +6,8 @@
 \usage{
 QuantumClone(SNV_list, FREEC_list = NULL, contamination, nclone_range = 2:5,
   clone_priors = NULL, prior_weight = NULL, simulated = FALSE,
-  save_plot = TRUE, epsilon = 5 * (10^(-3)), maxit = 2,
-  preclustering = TRUE, timepoints = NULL, ncores = 1,
+  save_plot = TRUE, epsilon = NULL, Initializations = 2,
+  preclustering = "FLASH", timepoints = NULL, ncores = 1,
   output_directory = NULL, model.selection = "BIC", optim = "default",
   keep.all.models = FALSE, force.single.copy = FALSE)
 }
@@ -18,7 +18,8 @@ and if the output from FREEC for the samples are not associated, the genotype "G
 
 \item{FREEC_list}{list of dataframes from FREEC for each samples (usually named Sample_ratio.txt), in the same order as SNV_list}
 
-\item{contamination}{Numeric vector describind the contamination in all samples (ranging from 0 to 1). Default is 0.}
+\item{contamination}{Numeric vector describind the contamination in all samples (ranging from 0 to 1). Default is 0. 
+No longer used for clustering.}
 
 \item{nclone_range}{A number or range of clusters that should be used for clustering}
 
@@ -30,11 +31,13 @@ and if the output from FREEC for the samples are not associated, the genotype "G
 
 \item{save_plot}{Should the plots be saved? Default is TRUE}
 
-\item{epsilon}{Stop value: maximal admitted value of the difference in cluster position and weights between two optimization steps.}
+\item{epsilon}{Stop value: maximal admitted value of the difference in cluster position and weights 
+between two optimization steps. If NULL, will take 1/(average depth).}
 
-\item{maxit}{Number of initial conditions to be tested for the EM algorithm}
+\item{Initializations}{Number of initial conditions to be tested for the EM algorithm}
 
-\item{preclustering}{Boolean: should a kmeans be performed on A and AB sites to determine priors}
+\item{preclustering}{The type of preclustering used for priors: "Flash","kmedoid" or NULL. NULL will generate
+centers using uniform distribution. WARNING: overrides priors given}
 
 \item{timepoints}{a numeric vector indicating if the samples are from different timepoints or tumors (e.g. one tumor and metastates) If NULL,
 all samples are considered from the same tumor.}
@@ -46,7 +49,11 @@ all samples are considered from the same tumor.}
 \item{model.selection}{The function to minimize for the model selection: can be "AIC", "BIC", or numeric. In numeric, the function
 uses a variant of the BIC by multiplication of the k*ln(n) factor. If >1, it will select models with lower complexity.}
 
-\item{optim}{use L-BFS-G optimization from R ("default"), or from optimx ("optimx")}
+\item{optim}{use L-BFS-G optimization from R, with exact gradient, ("default"), 
+or L-BFS-G with numerical gradient computation from optimx ("optimx"), 
+or Differential Evolution ("DEoptim"),
+or a mixture of EM with exact center computation (if fully diploid), or "optim" if this fails ("compound").
+Note that DEoptim is the only one that does not use EM algorithm}
 
 \item{keep.all.models}{Should the function output the best model (default; FALSE), or all models tested (if set to true)}
 
@@ -57,7 +64,6 @@ Sequentially calls a function to test all accessible cellularities for all mutat
 phylogenetic trees based on the uncovered cellularities
 }
 \examples{
-
 Mutations<-QuantumClone::Input_Example
  for(i in 1:2){
  Mutations[[i]]<-cbind(rep(paste("Example_",i,sep=""),times=10),Mutations[[i]])
@@ -67,14 +73,14 @@ print("The data should look like this:")
 print(head(Mutations[[1]]))
 
 cat("Cluster data: will try to cluster between 3 and 4 clones, with 1 maximum search each time,
-      and will use priors from preclustering (e.g. k-medoids on A and AB sites)")
+      and will use priors from preclustering.")
 print("The genotype is provided in the list frame, and
           there is no associated data from FREEC to get genotype from.")
 print("The computation will run on a single CPU.")
 Clustering_output<-QuantumClone(SNV_list = Mutations,
 FREEC_list = NULL,contamination = c(0,0),nclone_range = 3:4,
 clone_priors = NULL,prior_weight = NULL ,
-maxit = 1,preclustering = TRUE, simulated = TRUE,
+Initializations = 1,preclustering = "FLASH", simulated = TRUE,
 save_plot = TRUE,ncores=1,output_directory="Example")
 print("The data can be accessed by Clustering_output$filtered_data")
 print("All plots are now saved in the working directory")

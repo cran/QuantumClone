@@ -1,3 +1,7 @@
+## ---- include = FALSE----------------------------------------------------
+library(QuantumClone)
+knitr::opts_chunk$set(fig.dpi = 96)
+
 ## ----QuantumCat_example, eval = FALSE------------------------------------
 #      # Example was generated calling:
 #     Input_Example<-QuantumCat(number_of_clones = 4,

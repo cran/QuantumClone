@@ -5,7 +5,6 @@
 #' @param Sample_names Name of the samples.
 #' @param output_dir Directory in which to save plots
 #' @keywords Clonal inference plot
-#'
 plot_cell_from_Return_out<-function(lis,Sample_names,output_dir=NULL){
   if(length(lis)>1){
     U<-expand.grid(1:length(lis),1:length(lis))
@@ -124,7 +123,6 @@ plot_with_margins_densities<-function(QClone_Output){
 plot_QC_out<-function(QClone_Output,Sample_names=NULL, simulated = FALSE,sample_selected = 1:2){
   if(is.null(names(QClone_Output)) && sum(grepl(pattern = "Crit",x = names(QClone_Output[[1]])))>0){
     #### All models are kept
-    
     if(is.null(Sample_names)){
       Sample_names<-unlist(lapply(X = QClone_Output[[1]]$filtered.data,FUN = function(df){
         df[1,1]
@@ -158,6 +156,7 @@ plot_QC_out<-function(QClone_Output,Sample_names=NULL, simulated = FALSE,sample_
       ggplot2::ylab(Sample_names[2])
   }
   else if(sum(grepl(pattern = "filtered.data",x = names(QClone_Output)))){
+    message("Only one model identified")
     Cell <- QClone_Output$filtered.data
     M<-max(as.numeric(as.character(QClone_Output$cluster)))
     cluster<-factor(QClone_Output$cluster)
@@ -168,6 +167,7 @@ plot_QC_out<-function(QClone_Output,Sample_names=NULL, simulated = FALSE,sample_
       
     }
     if(length(sample_selected)==2){
+      message("Two samples identified...")
       result<-list()
       if(!simulated){
         q<-ggplot2::qplot(x=Cell[[sample_selected[1]]]$Cellularity,y=Cell[[sample_selected[2]]]$Cellularity, asp = 1,main=paste('Cellular prevalence',Sample_names[sample_selected[1]],Sample_names[sample_selected[2]]),
@@ -185,6 +185,7 @@ plot_QC_out<-function(QClone_Output,Sample_names=NULL, simulated = FALSE,sample_
       return(q)
     }
     else if(length(sample_selected)==1){
+      message("One sample identified...")
       if(!simulated){
         result<-ggplot2::qplot(x=Cell[[sample_selected[1]]]$Cellularity, y=jitter(rep(0.5,times=length(Cell[[sample_selected[1]]]$Cellularity)),factor = 5) , asp = 1,main=paste('Cellular prevalence',Sample_names[sample_selected[1]]),
                                xlab=paste('cellularity',Sample_names[sample_selected[1]]),ylab='', 
@@ -221,8 +222,14 @@ plot_QC_out<-function(QClone_Output,Sample_names=NULL, simulated = FALSE,sample_
 #' @export evolution_plot
 #' @examples 
 #' require(ggplot2)
+#' evolution_plot(QC_output)
 evolution_plot<-function(QC_out,Sample_names=NULL){
-  L<-length(QC_out$EM.output$centers)
+  if(sum(grepl(x = names(QC_out$EM.output),pattern = "normalized.centers"))){
+    L<-length(QC_out$EM.output$normalized.centers)
+  }
+  else{
+    L<-length(QC_out$EM.output$centers)
+  }
   if(is.null(Sample_names)){
     warning(paste("Samples_names is empty, will use 1 to",L))
     Sample_names<-1:L

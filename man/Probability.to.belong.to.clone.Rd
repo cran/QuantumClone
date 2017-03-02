@@ -12,7 +12,8 @@ Probability.to.belong.to.clone(SNV_list, clone_prevalence, contamination,
 the chromosome "Chr",the position of the mutation "Start", the number of reads supporting the mutation "Alt", the depth of coverage at this locus "Depth",
 and if the output from FREEC for the samples are not associated, the genotype "Genotype".}
 
-\item{clone_prevalence}{List of numeric vectors giving the cellular prevalence of each clone in each sample}
+\item{clone_prevalence}{List of numeric vectors giving the cellular prevalence of each clone in each sample, not normalized for contamination. 
+This should be stored in `QC_output$EM.output$centers`}
 
 \item{contamination}{Numeric vector giving the contamination by normal cells}
 
@@ -23,7 +24,7 @@ Returns dataframe with all informations about mutation (Number of copies, Cellul
 }
 \examples{
 set.seed(123)
-SNVs<-QuantumCat(number_of_clones = 2,number_of_mutations = 50,number_of_samples = 1)
+SNVs<-QuantumCat(number_of_clones = 2,number_of_mutations = 50,number_of_samples = 1,ploidy = "AB")
 Probability.to.belong.to.clone(SNV_list=SNVs,
 clone_prevalence=list(c(0.5,1),c(0.5,1)),contamination=c(0,0))
 }

@@ -5,7 +5,7 @@
 \title{Cellularity clustering}
 \usage{
 Cluster_plot_from_cell(Cell, Sample_names, simulated, save_plot = TRUE,
-  contamination, clone_priors, prior_weight, nclone_range, maxit,
+  contamination, clone_priors, prior_weight, nclone_range, Initializations,
   preclustering = TRUE, epsilon = 5 * (10^(-3)), ncores = 2,
   output_directory = NULL, model.selection = "BIC", optim = "default",
   keep.all.models = FALSE)
@@ -27,9 +27,10 @@ Cluster_plot_from_cell(Cell, Sample_names, simulated, save_plot = TRUE,
 
 \item{nclone_range}{Number of clusters to look for}
 
-\item{maxit}{Maximal number of independant initial condition tests to be tried}
+\item{Initializations}{Maximal number of independant initial condition tests to be tried}
 
-\item{preclustering}{Boolean: should a kmeans be performed on A and AB sites to determine priors}
+\item{preclustering}{The type of preclustering used for priors: "Flash","kmedoid" or NULL. NULL will generate
+centers using uniform distribution.}
 
 \item{epsilon}{Stop value: maximal admitted value of the difference in cluster position and weights between two optimization steps.}
 
@@ -40,7 +41,7 @@ Cluster_plot_from_cell(Cell, Sample_names, simulated, save_plot = TRUE,
 \item{model.selection}{The function to minimize for the model selection: can be "AIC", "BIC", or numeric. In numeric, the function
 uses a variant of the BIC by multiplication of the k*ln(n) factor. If >1, it will select models with lower complexity.}
 
-\item{optim}{use L-BFS-G optimization from R ("default"), or from optimx ("optimx")}
+\item{optim}{use L-BFS-G optimization from R ("default"), or from optimx ("optimx"), or Differential Evolution ("DEoptim")}
 
 \item{keep.all.models}{Should the function output the best model (default; FALSE), or all models tested (if set to true)}
 }
