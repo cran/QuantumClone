@@ -1,6 +1,6 @@
 Package: QuantumClone
 Title: Clustering Mutations using High Throughput Sequencing (HTS) Data
-Version: 1.0.0.3
+Version: 1.0.0.4
 Authors@R: person("Paul", "Deveau", role = c("aut", "cre"),
 		     email = "paul.deveau@curie.fr")
 Description: Using HTS data, clusters mutations in order to recreate putative
@@ -18,10 +18,10 @@ Suggests: knitr,rmarkdown,testthat
 License: GPL-2
 LazyData: true
 VignetteBuilder: knitr
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
 NeedsCompilation: no
-Packaged: 2017-03-02 17:54:58 UTC; Paul
+Packaged: 2017-03-08 10:59:23 UTC; Paul
 Author: Paul Deveau [aut, cre]
 Maintainer: Paul Deveau <paul.deveau@curie.fr>
 Repository: CRAN
-Date/Publication: 2017-03-02 23:49:50
+Date/Publication: 2017-03-08 16:37:18

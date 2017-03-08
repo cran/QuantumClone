@@ -1,6 +1,8 @@
 ## ---- include = FALSE----------------------------------------------------
 library(QuantumClone)
-knitr::opts_chunk$set(fig.dpi = 96)
+knitr::opts_chunk$set(collapse = TRUE, fig.width = 7, fig.height = 7, 
+                      fig.align = "center",
+                      fig.dpi = 96)
 
 ## ----QuantumCat_example, eval = FALSE------------------------------------
 #      # Example was generated calling:
