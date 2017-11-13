@@ -602,7 +602,9 @@ CellularitiesFromFreq<-function(chr, position,Alt,Depth,
       ### Only one possibility per mutation
       result<-data.frame(Chr = chr,
                          Start =  position, 
-                         Cellularity = as.numeric(Alt/Depth*Ns/(1-contamination)),
+                         Cellularity = as.numeric(
+                             {Alt/Depth}*{Ns + contamination/(1-contamination)*2}
+                             ),
                          Genotype = Genotype,
                          Alt = Alt,
                          Depth = Depth,
@@ -615,7 +617,9 @@ CellularitiesFromFreq<-function(chr, position,Alt,Depth,
       ### Vectorized version:
       result<-data.frame(Chr = chr,
                          Start = position,
-                         Cellularity = as.numeric(Alt/Depth*Ns/((1:As)*(1-contamination))),
+                         Cellularity = as.numeric(
+                             {Alt/Depth}*{Ns + contamination/(1-contamination)*2}/(1:As)
+                         ),
                          Genotype = Genotype,
                          Alt = Alt,
                          Depth = Depth,
@@ -628,7 +632,7 @@ CellularitiesFromFreq<-function(chr, position,Alt,Depth,
     As<-strcount(x = Genotype, pattern = 'A',split = '')
     Ns<-nchar(Genotype)
     for(i in 1:As){
-      Cellularity<-as.numeric(frequency/100*Ns/i*(1/(1-contamination)))
+      Cellularity<-as.numeric(frequency/100*{Ns+contamination/(1-contamination)*2}/i)
       spare<-data.frame(chr,position,Cellularity, Genotype,Alt,Depth,i,Ns)
       colnames(spare)<-c('Chr','Start','Cellularity','Genotype',"Alt","Depth","NC","NCh")
       result<-rbind(result,spare)
@@ -638,7 +642,7 @@ CellularitiesFromFreq<-function(chr, position,Alt,Depth,
     for(j in A.sub){
       ### Keep only possibilities that have a cellularity lower than the subclonal cellularity
       
-      Cellularity<-as.numeric(frequency/100*N.sub/j*(1/(1-contamination)))
+      Cellularity<-as.numeric(frequency/100*{N.sub+contamination/(1-contamination)*2}/j)
       if(Cellularity<=subclone.cell){
         spare<-data.frame(chr,position,Cellularity, subclone.genotype,Alt,Depth,j,N.sub)
         colnames(spare)<-c('Chr','Start','Cellularity','Genotype',"Alt","Depth","NC","NCh")

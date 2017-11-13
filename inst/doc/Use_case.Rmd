@@ -79,11 +79,12 @@ The QuantumClone package is divided in two:
 #### <a name="CR"></a> Clonal reconstruction
 One_step_clustering() has several parameters required (some have default configuration):
 ````{r One_step_example, eval = FALSE}
-  One_step_clustering(SNV_list, FREEC_list = NULL, contamination,
+  One_step_clustering(SNV_list = Input_Example, FREEC_list = NULL, contamination = c(0,0),
   nclone_range = 2:5, clone_priors = NULL, prior_weight = NULL,
-  maxit = 1 , preclustering = T, simulated = F, epsilon = 5 * (10^(-3)),
-  save_plot = T, ncores = 1, plot_3D = F, plot_3D_before_clustering = F,
-  restrict.to.AB = F, output_directory = NULL)
+  Initializations = 1 , preclustering = "Flash", 
+  simulated = FALSE, epsilon = 5 * (10^(-3)),
+  save_plot = TRUE, ncores = 1, 
+  restrict.to.AB = FALSE, output_directory = NULL)
 ````
 
 * SNV_list: list of dataframes. See [previous section](#SNVD) for description.
@@ -116,6 +117,15 @@ Output from clustering can be represented thanks to the plot_QC_out(), or plot_w
 
 ````{r plot, echo= FALSE,warning=FALSE}
   QuantumClone::plot_QC_out(QuantumClone::QC_output)
+````
+
+If more than one sample (here we reuse sample 1 in the plot, to illustrate plot possibilities, not clustering):
+> plot_QC_out(QC_output3s, Sample_names=c("Diag","Rel","Metastasis"), simulated = FALSE,sample_selected = 1:3))
+
+````{r multiplot, echo= FALSE,warning=FALSE}
+    modQCout<-QuantumClone::QC_output
+    modQCout$filtered.data[[3]]<-modQCout$filtered.data[[1]]
+    QuantumClone::plot_QC_out(modQCout,Sample_names=c("Diag","Rel","Metastasis"),sample_selected = 1:3)
 ````
 
 > plot_with_margins_densities(QC_output)

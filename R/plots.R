@@ -113,6 +113,7 @@ plot_with_margins_densities<-function(QClone_Output){
 #' @param sample_selected : number of the sample to be considered for plot (can be 1 or 2 samples)
 #' @param Sample_names : character vector of the names of each sample (in the same order as the data)
 #' @keywords Plot 
+#' @importFrom ggplot2 aes_string ggplot theme_bw coord_cartesian xlab ylab
 #' @export plot_QC_out
 #' @examples
 #' require(ggplot2)
@@ -123,6 +124,7 @@ plot_with_margins_densities<-function(QClone_Output){
 plot_QC_out<-function(QClone_Output,Sample_names=NULL, simulated = FALSE,sample_selected = 1:2){
   if(is.null(names(QClone_Output)) && sum(grepl(pattern = "Crit",x = names(QClone_Output[[1]])))>0){
     #### All models are kept
+    message("Multiple criteria found.")
     if(is.null(Sample_names)){
       Sample_names<-unlist(lapply(X = QClone_Output[[1]]$filtered.data,FUN = function(df){
         df[1,1]
@@ -130,82 +132,170 @@ plot_QC_out<-function(QClone_Output,Sample_names=NULL, simulated = FALSE,sample_
       
     }
     plot_df<-data.frame()
-    for(i in 1:length(QClone_Output)){
-      plot_df<-rbind(plot_df,
-                     cbind(x = QClone_Output[[i]]$filtered.data[[1]]$Cellularity,
-                           y= QClone_Output[[i]]$filtered.data[[2]]$Cellularity,
-                           clone = QClone_Output[[i]]$cluster,
-                           Crit = QClone_Output[[i]]$Crit)
-                     )
+    nsamples<-length(QClone_Output[[1]]$filtered.data)
+    message(paste(nsamples, "samples found"))
+    if( nsamples == 2){
+      for(i in 1:length(QClone_Output)){
+        plot_df<-rbind(plot_df,
+                       cbind(x = QClone_Output[[i]]$filtered.data[[1]]$Cellularity,
+                             y= QClone_Output[[i]]$filtered.data[[2]]$Cellularity,
+                             clone = QClone_Output[[i]]$cluster,
+                             Crit = QClone_Output[[i]]$Crit)
+        )
+      }
+      
+      plot_df$clone<-as.factor(plot_df$clone)
+      
+      result<-ggplot2::ggplot(data=plot_df,
+                              ggplot2::aes_string(x = "x", y="y",
+                                                  colour = "clone" )
+      )+ggplot2::geom_point()+
+        ggplot2::scale_colour_discrete(name='Clone')+
+        ggplot2::theme_bw()+
+        ggplot2::facet_wrap(facets = "Crit",
+                            ncol = floor(sqrt(length(QClone_Output)))+1)+
+        ggplot2::ggtitle("Criterion comparison")+
+        ggplot2::xlim(c(0,1))+
+        ggplot2::ylim(c(0,1))+
+        ggplot2::xlab(Sample_names[1])+
+        ggplot2::ylab(Sample_names[2])
     }
-
-    plot_df$clone<-as.factor(plot_df$clone)
-
-    result<-ggplot2::ggplot(data=plot_df,
-                            ggplot2::aes_string(x = "x", y="y",
-                                colour = "clone" )
-    )+ggplot2::geom_point()+
-      ggplot2::scale_colour_discrete(name='Clone')+
-      ggplot2::theme_bw()+
-      ggplot2::facet_wrap(facets = "Crit",
-                          ncol = floor(sqrt(length(QClone_Output)))+1)+
-      ggplot2::ggtitle("Criterion comparison")+
-      ggplot2::xlim(c(0,1))+
-      ggplot2::ylim(c(0,1))+
-      ggplot2::xlab(Sample_names[1])+
-      ggplot2::ylab(Sample_names[2])
+    else if(nsamples > 2){
+      stop("Cannot plot with multiple criteria and more than 2 samples.")
+    }
+    # Single sample
+    else{
+      message("Single sample, multiple BIC is not implemented yet")
+    }
   }
+  
+  
   else if(sum(grepl(pattern = "filtered.data",x = names(QClone_Output)))){
-    message("Only one model identified")
+    message("Only one model identified.")
     Cell <- QClone_Output$filtered.data
     M<-max(as.numeric(as.character(QClone_Output$cluster)))
-    cluster<-factor(QClone_Output$cluster)
+    cluster<-as.factor(QClone_Output$cluster)
     if(is.null(Sample_names)){
       Sample_names<-unlist(lapply(X = QClone_Output$filtered.data,FUN = function(df){
         df[1,1]
       }))
       
     }
+    ### Usual
     if(length(sample_selected)==2){
-      message("Two samples identified...")
+      message("Two samples identified.")
       result<-list()
+      df<-data.frame(x=Cell[[sample_selected[1]]]$Cellularity,
+                     y=Cell[[sample_selected[2]]]$Cellularity,
+                     colour = cluster)
       if(!simulated){
-        q<-ggplot2::qplot(x=Cell[[sample_selected[1]]]$Cellularity,y=Cell[[sample_selected[2]]]$Cellularity, asp = 1,main=paste('Cellular prevalence',Sample_names[sample_selected[1]],Sample_names[sample_selected[2]]),
-                          xlab=paste('Cellular prevalence',Sample_names[sample_selected[1]]),ylab=paste('Cellular prevalence',Sample_names[sample_selected[2]]), 
-                          colour = cluster)+ggplot2::scale_colour_discrete(name='Clone')+ggplot2::coord_cartesian(xlim=c(0,1),ylim=c(0,1))+ggplot2::theme_bw()
+        
+        q<-ggplot2::ggplot(df,aes_string(x = "x",y="y",colour = "colour"))+
+          ggplot2::geom_point()+
+          ggplot2::xlab(paste('Cellular prevalence',Sample_names[sample_selected[1]]))+
+          ggplot2::ylab(paste('Cellular prevalence',Sample_names[sample_selected[2]]))+ 
+          ggplot2::scale_colour_discrete(name='Clone')+
+          ggplot2::coord_cartesian(xlim=c(0,1),ylim=c(0,1))+
+          ggplot2::theme_bw()
         
       }
       else{
-        q<-ggplot2::qplot(x=Cell[[sample_selected[1]]]$Cellularity,y=Cell[[sample_selected[2]]]$Cellularity, asp = 1,main=paste('Cellular prevalence plot',Sample_names[sample_selected[1]],Sample_names[sample_selected[2]]),
-                          xlab=paste('Cellular prevalence',Sample_names[sample_selected[1]]),ylab=paste('Cellular prevalence',Sample_names[sample_selected[2]]),
-                          colour = cluster,
-                          shape=factor(Cell[[sample_selected[1]]]$Chr))+ggplot2::theme_bw()+ggplot2::scale_shape_discrete(factor(1:max(Cell[[sample_selected[1]]][,'Chr'])),
-                                                                                                                          name='Clone \n(simulated)')+ggplot2::scale_colour_discrete(name='Cluster')+ggplot2::coord_cartesian(xlim=c(0,1),ylim=c(0,1))+ggplot2::theme_bw()
+        df$shape<-as.factor(Cell[[sample_selected[1]]]$Chr)
+        
+        q<-ggplot2::ggplot(df,aes_string(x = "x",y="y",colour = "colour",shape = "shape"))+
+          ggplot2::geom_point()+
+          ggplot2::xlab(paste('Cellular prevalence',Sample_names[sample_selected[1]]))+
+          ggplot2::ylab(paste('Cellular prevalence',Sample_names[sample_selected[2]]))+ 
+          ggplot2::scale_colour_discrete(name='Clone')+
+          ggplot2::scale_shape_discrete(name='Clone \n(simulated)')+
+          ggplot2::coord_cartesian(xlim=c(0,1),ylim=c(0,1))+
+          ggplot2::theme_bw()
       }
       return(q)
     }
     else if(length(sample_selected)==1){
-      message("One sample identified...")
+      message("One sample identified.")
+      df<-data.frame(x=Cell[[sample_selected[1]]]$Cellularity,
+                     y=jitter(rep(0.5,times=length(Cell[[sample_selected[1]]]$Cellularity)),factor = 5),
+                     colour = cluster)
       if(!simulated){
-        result<-ggplot2::qplot(x=Cell[[sample_selected[1]]]$Cellularity, y=jitter(rep(0.5,times=length(Cell[[sample_selected[1]]]$Cellularity)),factor = 5) , asp = 1,main=paste('Cellular prevalence',Sample_names[sample_selected[1]]),
-                               xlab=paste('cellularity',Sample_names[sample_selected[1]]),ylab='', 
-                               colour = cluster)+ggplot2::scale_colour_discrete(name='Clone')+ggplot2::coord_cartesian(xlim=c(0,1),ylim=c(0,1))+ggplot2::theme_bw()+ggplot2::theme(axis.line.y=ggplot2::element_blank(),
-                                                                                                                                                                                   axis.ticks.y=ggplot2::element_blank(),
-                                                                                                                                                                                   panel.background  = ggplot2::element_blank(),
-                                                                                                                                                                                   axis.text.y = ggplot2::element_blank())
+        
+        result<-ggplot2::ggplot(df,aes_string(x = "x",y="y",colour = "colour") )+
+          ggplot2::geom_point()+
+          ggplot2::xlab(paste('cellularity',Sample_names[sample_selected[1]]))+
+          ggplot2::ylab('')+
+          ggplot2::scale_colour_discrete(name='Clone')+
+          ggplot2::coord_cartesian(xlim=c(0,1),ylim=c(0,1))+
+          ggplot2::theme_bw()+
+          ggplot2::theme(axis.line.y=ggplot2::element_blank(),
+                         axis.ticks.y=ggplot2::element_blank(),
+                         panel.background  = ggplot2::element_blank(),
+                         axis.text.y = ggplot2::element_blank())
       }
       else{
-        result<-ggplot2::qplot(x=Cell[[sample_selected[1]]],y=jitter(rep(0.5,times=length(Cell[[sample_selected[1]]]$Cellularity)),factor = 5), asp = 1,main=paste('Cellular prevalence',Sample_names[sample_selected[1]]),
-                               xlab=paste('Cellular prevalence',Sample_names[sample_selected[1]]),ylab='',
-                               colour = cluster)+ggplot2::scale_colour_discrete(name='Cluster')+ggplot2::coord_cartesian(xlim=c(0,1),ylim=c(0,1))+ggplot2::scale_shape_discrete(factor(1:max(Cell[[1]][,'Chr'])),
-                                                                                                                                                                                name='Clone \n(simulated)')+ggplot2::theme_bw()+ggplot2::theme(axis.line.y=ggplot2::element_blank(),
-                                                                                                                                                                                                                                               axis.ticks.y=ggplot2::element_blank(),
-                                                                                                                                                                                                                                               panel.background  = ggplot2::element_blank(),
-                                                                                                                                                                                                                                               axis.text.y = ggplot2::element_blank())
+        df$shape<-as.factor(Cell[[sample_selected[1]]]$Chr)
+        
+        result<-ggplot2::ggplot(df,aes_string(x = "x",y="y",colour = "colour",shape = "shape") )+
+          ggplot2::geom_point()+
+          xlab(paste('cellularity',Sample_names[sample_selected[1]]))+
+          ylab('')+
+          ggplot2::scale_colour_discrete(name='Clone')+
+          ggplot2::scale_shape_discrete("Clone \n (simulated)")+
+          ggplot2::coord_cartesian(xlim=c(0,1),ylim=c(0,1))+
+          ggplot2::theme_bw()+
+          ggplot2::theme(axis.line.y=ggplot2::element_blank(),
+                         axis.ticks.y=ggplot2::element_blank(),
+                         panel.background  = ggplot2::element_blank(),
+                         axis.text.y = ggplot2::element_blank())
       }
+      
     }
     else{
-      stop("Number of samples can only be 1 or 2 for this function.Use sample_selected parameter.")
+      # Get all possible combination of samples,without redundancy
+      grid<-expand.grid(sample_selected,sample_selected)
+      # facet on the grid row
+      df<-NULL
+      if(!simulated){
+        for(row in 1:nrow(grid)){
+          df<-rbind(df,
+                    data.frame(x=Cell[[sample_selected[grid[row,1]]]]$Cellularity,
+                               y=Cell[[sample_selected[grid[row,2]]]]$Cellularity,
+                               colour = cluster,
+                               facet_x = Sample_names[sample_selected[grid[row,1]]],
+                               facet_y = Sample_names[sample_selected[grid[row,2]]])
+          )
+        }
+        result<-ggplot2::ggplot(df,aes_string(x = "x",y="y",colour = "colour"))+
+          ggplot2::geom_point()+
+          ggplot2::xlab('Cellular prevalence')+
+          ggplot2::ylab('Cellular prevalence')+ 
+          ggplot2::scale_colour_discrete(name='Clone')+
+          ggplot2::coord_cartesian(xlim=c(0,1),ylim=c(0,1))+
+          ggplot2::facet_grid(facets = facet_x ~ facet_y)+
+          ggplot2::theme_bw()
+      }
+      else{
+        shape<- as.factor(Cell[[sample_selected[1]]]$Chr)
+        for(row in 1:nrow(grid)){
+          df<-rbind(df,
+                    data.frame(x=Cell[[sample_selected[grid[row,1]]]]$Cellularity,
+                               y=Cell[[sample_selected[grid[row,2]]]]$Cellularity,
+                               shape = shape,
+                               colour = cluster,
+                               facet_x = Sample_names[sample_selected[grid[row,1]]],
+                               facet_y = Sample_names[sample_selected[grid[row,2]]])
+          )
+        }
+        result<-ggplot2::ggplot(df,aes_string(x = "x",y="y",colour = "colour"))+
+          ggplot2::geom_point()+
+          ggplot2::xlab('Cellular prevalence')+
+          ggplot2::ylab('Cellular prevalence')+ 
+          ggplot2::scale_colour_discrete(name='Clone')+
+          ggplot2::coord_cartesian(xlim=c(0,1),ylim=c(0,1))+
+          ggplot2::facet_grid(facets = facet_x ~ facet_y)+
+          ggplot2::theme_bw()
+      }
+      #stop("Number of samples can only be 1 or 2 for this function.Use sample_selected parameter.")
     }
   }
   else{

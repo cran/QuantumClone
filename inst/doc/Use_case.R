@@ -16,17 +16,23 @@ knitr::opts_chunk$set(collapse = TRUE, fig.width = 7, fig.height = 7,
   knitr::kable(head(QuantumClone::Input_Example[[1]]))
 
 ## ----One_step_example, eval = FALSE--------------------------------------
-#    One_step_clustering(SNV_list, FREEC_list = NULL, contamination,
+#    One_step_clustering(SNV_list = Input_Example, FREEC_list = NULL, contamination = c(0,0),
 #    nclone_range = 2:5, clone_priors = NULL, prior_weight = NULL,
-#    maxit = 1 , preclustering = T, simulated = F, epsilon = 5 * (10^(-3)),
-#    save_plot = T, ncores = 1, plot_3D = F, plot_3D_before_clustering = F,
-#    restrict.to.AB = F, output_directory = NULL)
+#    Initializations = 1 , preclustering = "Flash",
+#    simulated = FALSE, epsilon = 5 * (10^(-3)),
+#    save_plot = TRUE, ncores = 1,
+#    restrict.to.AB = FALSE, output_directory = NULL)
 
 ## ----out,echo= FALSE-----------------------------------------------------
   knitr::kable(head(QuantumClone::QC_output$filtered.data[[1]]))
 
 ## ----plot, echo= FALSE,warning=FALSE-------------------------------------
   QuantumClone::plot_QC_out(QuantumClone::QC_output)
+
+## ----multiplot, echo= FALSE,warning=FALSE--------------------------------
+    modQCout<-QuantumClone::QC_output
+    modQCout$filtered.data[[3]]<-modQCout$filtered.data[[1]]
+    QuantumClone::plot_QC_out(modQCout,Sample_names=c("Diag","Rel","Metastasis"),sample_selected = 1:3)
 
 ## ----margin, echo= FALSE,warning=FALSE-----------------------------------
   QuantumClone::plot_with_margins_densities(QuantumClone::QC_output)
